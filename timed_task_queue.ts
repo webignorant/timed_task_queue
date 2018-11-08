@@ -22,7 +22,10 @@ export default class TimedTaskQueue {
   private tasks: TaskI[] = [];
 
   public constructor(interval: number = 1000) {
-    setInterval(this.execTask, interval);
+    const self = this;
+    setInterval(() => {
+      self.execTask();
+    }, interval);
     return this;
   }
 
@@ -30,10 +33,11 @@ export default class TimedTaskQueue {
     const currentTime: number = new Date().getTime();
 
     const task: TaskI = Object.assign({}, taskOptions);
+    task.group_name = taskOptions.group_name || '';
     task.interval = taskOptions.interval || 1000;
     task.exec_time = taskOptions.incl_exec ? (currentTime - taskOptions.interval) : currentTime;
     task.status = TaskStatus.Stop;
-    // tasks.push(task);
+    this.tasks.push(task);
   }
 
   public delTask(name: string): void {
@@ -117,6 +121,9 @@ export default class TimedTaskQueue {
 
   public execTask(): void {
     const currentTime: number = new Date().getTime();
+    if (!this.currentTasks.length) {
+      return;
+    }
     for (const task of this.currentTasks) {
       if (task.status) {
         // task is running
