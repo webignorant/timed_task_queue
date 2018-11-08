@@ -139,19 +139,24 @@ export default class TimedTaskQueue {
       }
       task.status = TaskStatus.Running;
       task.exec_time = currentTime;
-      // tslint:disable-next-line:no-shadowed-variable
-      task.func(this, task).then((task: TaskI, data?: any) => {
-        this.logger(`[taskDone]${task.name} run done`, data);
-        return task;
-      // tslint:disable-next-line:no-shadowed-variable
-      }).catch((task: TaskI, err?: any) => {
-        this.logger(`[taskFail]${task.name} run fail`, err);
-        return task;
-      // tslint:disable-next-line:no-shadowed-variable
-      }).then((task: TaskI) => {
-        this.logger('[taskAwaly]', task);
+      try {
+        // tslint:disable-next-line:no-shadowed-variable
+        task.func(this, task).then((task: TaskI, data?: any) => {
+          this.logger(`[taskDone]${task.name} run done`, data);
+          return task;
+        // tslint:disable-next-line:no-shadowed-variable
+        }).catch((task: TaskI, err?: any) => {
+          this.logger(`[taskFail]${task.name} run fail`, err);
+          return task;
+        // tslint:disable-next-line:no-shadowed-variable
+        }).then((task: TaskI) => {
+          this.logger('[taskAwaly]', task);
+          task.status = TaskStatus.Stop;
+        });
+      } catch (error) {
+        this.logger('[taskError]', error);
         task.status = TaskStatus.Stop;
-      });
+      }
     }
   }
 
