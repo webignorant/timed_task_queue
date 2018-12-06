@@ -17,13 +17,14 @@ export interface TaskI {
 }
 
 export default class TimedTaskQueue {
+  public interval: any;
   private debug: boolean = false;
   private currentTasks: TaskI[] = [];
   private tasks: TaskI[] = [];
 
   public constructor(interval: number = 1000) {
     const self = this;
-    setInterval(() => {
+    self.interval = setInterval(() => {
       self.execTask();
     }, interval);
     return this;
@@ -42,7 +43,7 @@ export default class TimedTaskQueue {
 
   public delTask(name: string): void {
     this.currentTasks = this.currentTasks.filter((item: TaskI) => {
-      return item.group_name !== name;
+      return item.name !== name;
     });
     this.tasks = this.tasks.filter((item: TaskI) => {
       return item.name !== name;
@@ -58,10 +59,10 @@ export default class TimedTaskQueue {
     });
   }
 
-  public getTasks(name: string): undefined | TaskI | TaskI[] {
+  public getTasks(name: string, groupName: string): undefined | TaskI | TaskI[] {
     if (name) {
       return this.tasks.find((item: TaskI) => {
-        return item.name === name;
+        return item.name === name && (groupName ? (item.group_name === groupName) ? true : false : true);
       });
     }
     return this.tasks;
@@ -133,7 +134,9 @@ export default class TimedTaskQueue {
         task.exec_time = currentTime;
         continue;
       }
-      if ((currentTime - task.exec_time) < task.interval) {
+      // 0.01s is delay time
+      const delayTime = 10;
+      if ((currentTime - task.exec_time) < (task.interval - delayTime)) {
         // require more than interval
         continue;
       }
