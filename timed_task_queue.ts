@@ -8,10 +8,10 @@ export interface TaskI {
   readonly name: string;
   interval: number;
   func: (x: TimedTaskQueue, y: TaskI) => Promise<TaskI>;
-  incl_exec: boolean;
-  task_before: string;
-  task_after: string;
-  status: TaskStatus;
+  incl_exec?: boolean;
+  task_before?: string;
+  task_after?: string;
+  status?: TaskStatus;
   exec_time?: number;
   group_name?: string;
 }
